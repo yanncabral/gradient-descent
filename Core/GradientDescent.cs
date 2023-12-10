@@ -8,7 +8,7 @@ public class GradientDescent : Optimizer
 {
     public IDerivative Derivative { get; init; } = new FiniteDifference();
     public int MaxIterations { get; init; } = 1000000;
-    public Vector? InitialCoordinates { get; init; }
+    public Vector? InitialCoordinates { get; set; }
     public double Epsilon { get; init; } = 1e-7;
     public required IStepSizeStrategy StepSizeStrategy { get; init; }
 
@@ -38,9 +38,9 @@ public class GradientDescent : Optimizer
 
     public override OptimizationResult FindLocalMinimal()
     {
-        var walkthrough = WalkthroughForMinimal().ToList();
+        InitialCoordinates ??= Vector.Random(Function.Dimension);
+        var walkthrough = WalkthroughForMinimal();
         
-        var firstStep = walkthrough.First();
         var lastStep = walkthrough.Last();
 
         return new OptimizationResult()
@@ -48,7 +48,7 @@ public class GradientDescent : Optimizer
             Point = lastStep.Item2,
             Function = Function,
             Iterations = lastStep.Item1,
-            InitialCoordinates = firstStep.Item2,
+            InitialCoordinates = InitialCoordinates,
             Strategy = StepSizeStrategy,
         };
     }
