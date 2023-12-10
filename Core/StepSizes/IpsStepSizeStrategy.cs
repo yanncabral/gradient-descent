@@ -18,10 +18,9 @@ public class IpsStepSizeStrategy : IStepSizeStrategy
 {
     public double Epsilon { get; init; } = 1e-7;
     public int MaxIterations { get; init; } = 100;
-    public double Alpha { get; init; } = 0.01;
-    public double Delta { get; init; } = 0.001;
+    public double Alpha { get; init; } = 0.1;
+    public double Delta { get; init; } = 0.005;
     public IpsReplacementType ReplacementType { get; init; } = IpsReplacementType.Ciclical;
-    
 
     public double Handle(MathFunction f, Vector point, Vector gradient)
     {
@@ -29,47 +28,74 @@ public class IpsStepSizeStrategy : IStepSizeStrategy
         if (MaxIterations <= 0) throw new ArgumentException("MaxIterations must be positive.");
 
         var estimates = new List<double> { Alpha + Delta, Alpha, Alpha - Delta };
-        var stepSize = Alpha;
 
         for (var i = 0; i < MaxIterations; i++)
         {
-            var fr = f.Evaluate(point - gradient * estimates[0]);
-            var fs = f.Evaluate(point - gradient * estimates[1]);
-            var ft = f.Evaluate(point - gradient * estimates[2]);
+            var fr = F(estimates[0], f, point, gradient);
+            var fs = F(estimates[1], f, point, gradient);
+            var ft = F(estimates[2], f, point, gradient);
 
             var numerator = (fs - fr) * (estimates[2] - estimates[0]) * (estimates[2] - estimates[1]);
             var denominator = 2 * ((estimates[1] - estimates[0]) * (ft - fs) - (fs - fr) * (estimates[2] - estimates[1]));
+            
+            double estimate;
 
             if (Math.Abs(denominator) < 1e-10)
             {
                 // Handle small or zero denominator
-                stepSize = estimates.Sum() / 3;
+                estimate = estimates.Sum() / 3;
             }
             else
             {
-                stepSize = ((estimates[0] + estimates[1]) / 2 - (numerator / denominator));
+                estimate = ((estimates[0] + estimates[1]) / 2 - (numerator / denominator));
             }
 
-            if (Math.Abs(estimates[0] - stepSize) < Epsilon)
+            if (Math.Abs(estimates[0] - estimate) < Epsilon)
             {
                 break;
             }
             
-            estimates.Add(stepSize);
+            
 
-            switch (ReplacementType)
-            {
-                case IpsReplacementType.Ciclical:
-                    // Update estimates
-                    estimates.RemoveAt(0);
-                    break;
-                case IpsReplacementType.Worst:
-                    estimates.Sort();
-                    estimates.RemoveAt(estimates.Count - 1);
-                    break;
-            }
+            UpdateEstimates(ref estimates, estimate);
         }
 
-        return stepSize;
+        return estimates.Min();
+    }
+    
+    private void UpdateEstimates(ref List<double> estimates, double estimate)
+    {
+        estimates.Add(estimate);
+        
+        switch (ReplacementType)
+        {
+            case IpsReplacementType.Ciclical:
+                // Update estimates
+                estimates.RemoveAt(0);
+                break;
+            case IpsReplacementType.Worst:
+            {
+                var worstIndex = 0;
+                for (var j = 1; j < estimates.Count; j++)
+                {
+                    if (estimates[j] > estimates[worstIndex])
+                    {
+                        worstIndex = j;
+                    }
+                }
+                estimates.RemoveAt(worstIndex);
+                break;
+            }
+        }
+    }
+    
+    private static double F(double estimate, MathFunction f, Vector point, Vector gradient)
+    {
+        return f.Evaluate(point - gradient * estimate);
+    }
+
+    public override string ToString()
+    {
+        return $"{base.ToString()}({ReplacementType})";
     }
 }

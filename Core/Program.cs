@@ -21,9 +21,33 @@ public static class Program
             {
                 Function = new Rosenbrock3DFunction(),
                 InitialCoordinates = Vector.Random(3),
+                StepSizeStrategy = new IpsStepSizeStrategy(),
+            },
+            new GradientDescent
+            {
+                Function = new Rosenbrock2DFunction(),
+                InitialCoordinates = Vector.Random(2),
                 StepSizeStrategy = new IpsStepSizeStrategy()
                 {
                     ReplacementType = IpsReplacementType.Worst
+                },
+            },
+            new GradientDescent
+            {
+                Function = new Rosenbrock3DFunction(),
+                InitialCoordinates = Vector.Random(3),
+                StepSizeStrategy = new IpsStepSizeStrategy()
+                {
+                    ReplacementType = IpsReplacementType.Worst
+                },
+            },
+            new GradientDescent
+            {
+                Function = new Rosenbrock2DFunction(),
+                InitialCoordinates = Vector.Random(2, min: -10, max: 10),
+                StepSizeStrategy = new ConstantStepSizeStrategy()
+                {
+                    StepSize = 0.1
                 },
             },
         };
@@ -63,7 +87,7 @@ public static class Program
         var watch = Stopwatch.StartNew();
         var minimal = optimizer.FindLocalMinimal();
         watch.Stop();
-        var elapsed = watch.Elapsed.Milliseconds;
+        var elapsed = (int) watch.Elapsed.TotalMilliseconds;
 
         Console.WriteLine($"{optimizer.Function}({optimizer.StepSizeStrategy}): {minimal} in {elapsed}ms.");
     }
