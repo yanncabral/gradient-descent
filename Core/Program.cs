@@ -15,27 +15,38 @@ public static class Program
             new GradientDescent
             {
                 Function = new Rosenbrock2DFunction(),
-                InitialCoordinates = new Vector(1, 1),
-                Derivative = new FiniteDifference(),
-                StepSizeStrategy = new IpsWorstStepSizeStrategy(),
-                Iterations = 10000,
+                InitialCoordinates = Vector.Random(2),
+                StepSizeStrategy = new IpsStepSizeStrategy(),
             },
             new GradientDescent
             {
                 Function = new Rosenbrock3DFunction(),
-                InitialCoordinates = new Vector(1, 1, 1),
-                Derivative = new FiniteDifference(),
-                StepSizeStrategy = new IpsWorstStepSizeStrategy(),
-                Iterations = 10000,
+                InitialCoordinates = Vector.Random(3),
+                StepSizeStrategy = new IpsStepSizeStrategy()
+                {
+                    ReplacementType = IpsReplacementType.Worst
+                },
             },
         };
 
         foreach (var gradient in gradients)
         {
-            // RunAndLogOptimizer(gradient);
             RunOptimizer(gradient);
 
         }
+        
+        // RunAndLogOptimizer(new GradientDescent
+        // {
+        //     Function = new Rosenbrock3DFunction(),
+        //     InitialCoordinates = Vector.Random(3, min: -10000, max: 10000),
+        //     Derivative = new FiniteDifference(),
+        //     // StepSizeStrategy = new ConstantStepSizeStrategy() { StepSize = 0.01 },
+        //     StepSizeStrategy = new IpsStepSizeStrategy
+        //     {
+        //         ReplacementType = IpsReplacementType.Ciclical,
+        //     },
+        //     MaxIterations = 1000000,
+        // });
     }
     
     private static void RunAndLogOptimizer(GradientDescent optimizer)

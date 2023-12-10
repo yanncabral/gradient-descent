@@ -7,32 +7,32 @@ namespace Core;
 public class GradientDescent : Optimizer
 {
     public IDerivative Derivative { get; init; } = new FiniteDifference();
-    public int Iterations { get; init; } = 10000;
-    public Vector InitialCoordinates { get; init; } = new (0, 0);
-    public double Epsilon { get; init; } = 1e-6;
+    public int MaxIterations { get; init; } = 1000000;
+    public Vector? InitialCoordinates { get; init; }
+    public double Epsilon { get; init; } = double.Epsilon;
     public required IStepSizeStrategy StepSizeStrategy { get; init; }
 
     public override IEnumerable<(int, Vector)> WalkthroughForMinimal()
     {
         var currentPoint = InitialCoordinates;
 
-        for (var i = 0; i < Iterations; i++)
+        for (var i = 0; i < MaxIterations; i++)
         {
             yield return (i, currentPoint);
             var gradient = CalculateGradient(currentPoint);
             
-            if (gradient.Norm < Epsilon)
-            {
-                yield break;
-            }
-
             var stepSize = StepSizeStrategy.Handle(
                 f: Function,
                 point: currentPoint,
                 gradient: gradient
             );
 
-            currentPoint -= currentPoint * stepSize;
+            if (stepSize < Epsilon)
+            {
+                yield break;
+            }
+
+            currentPoint -= gradient * stepSize;
         }
     }
 

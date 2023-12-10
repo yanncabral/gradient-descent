@@ -27,25 +27,49 @@ public class Vector
     public Vector() {}
 
     public Vector(params double[] values) => Values = values;
-    public Vector(params int[] values) => Values = values.Select(x => (double)x).ToArray();
+
+    public static Vector Random(int dimension, double min = -1000, double max = 1000)
+    {
+        var random = new Random();
+        var values = new double[dimension];
+
+        for (var i = 0; i < dimension; i++)
+        {
+            values[i] = random.NextDouble() * (max - min) + min;
+        }
+
+        return new Vector(values);
+    }
 
     public override string ToString()
     {
         return $"({string.Join(", ", Values)})";
     }
     
+    public static Vector operator +(Vector a, Vector b)
+    {
+        var result = new double[a.Dimension];
+    
+        for (var i = 0; i < a.Dimension; i++)
+        {
+            result[i] = a[i] + b[i];
+        }
+    
+        return new Vector(result);
+    }
+    
     public static Vector operator -(Vector a, Vector b)
     {
         var result = new double[a.Dimension];
-
+    
         for (var i = 0; i < a.Dimension; i++)
         {
             result[i] = a[i] - b[i];
         }
-
+    
         return new Vector(result);
     }
-
+    
     public static Vector operator *(Vector a, double b)
     {
         var result = new double[a.Dimension];
@@ -54,19 +78,48 @@ public class Vector
         {
             result[i] = a[i] * b;
         }
-
+    
         return result;
+    }
+    
+    public static Vector operator *(double a, Vector b)
+    {
+        return b * a;
+    }
+    
+    public static Vector operator *(Vector a, Vector b)
+    {
+        var result = new double[a.Dimension];
+    
+        for (var i = 0; i < a.Dimension; i++)
+        {
+            result[i] = a[i] * b[i];
+        }
+    
+        return new Vector(result);
     }
     
     public static Vector operator /(Vector a, double b)
     {
         var result = new double[a.Dimension];
-
+    
         for (var i = 0; i < a.Dimension; i++)
         {
             result[i] = a[i] / b;
         }
-
+    
+        return new Vector(result);
+    }
+    
+    public static Vector operator /(Vector a, Vector b)
+    {
+        var result = new double[a.Dimension];
+    
+        for (var i = 0; i < a.Dimension; i++)
+        {
+            result[i] = a[i] / b[i];
+        }
+    
         return new Vector(result);
     }
 
