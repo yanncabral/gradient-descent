@@ -4,7 +4,8 @@ namespace Core.Derivatives;
 
 public class FiniteDifference : IDerivative
 {
-    public double Partial(MathFunction function, Vector vector, int variableIndex, double stepSize = 1e-5)
+    public double StepSize { get; init; } = 1e-5;
+    public double Partial(MathFunction function, Vector vector, int variableIndex)
     {
         if (vector.Dimension <= variableIndex || variableIndex < 0)
         {
@@ -14,9 +15,9 @@ public class FiniteDifference : IDerivative
         }
 
         var pointWithDelta = vector.Clone();
-        pointWithDelta[variableIndex] += stepSize;
+        pointWithDelta[variableIndex] += StepSize;
 
         // f'(x) = (f(x + h) - f(x)) / h
-        return (function.Evaluate(pointWithDelta) - function.Evaluate(vector)) / stepSize;
+        return (function.Evaluate(pointWithDelta) - function.Evaluate(vector)) / StepSize;
     }
 }

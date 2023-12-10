@@ -4,5 +4,5 @@ namespace Core.Derivatives;
 
 public interface IDerivative
 {
-    double Partial(MathFunction function, Vector vector, int variableIndex, double stepSize = 1e-5);
+    double Partial(MathFunction function, Vector vector, int variableIndex);
 }
