@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Core.Derivatives;
 using Core.Entities;
 using Core.Functions;
 using Core.StepSizes;
