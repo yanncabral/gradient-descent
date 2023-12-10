@@ -1,5 +1,6 @@
 using Core.Entities;
-using Core.StepSize;
+using Core.Functions;
+using Core.StepSizes;
 
 namespace Core.Tests;
 
@@ -9,23 +10,16 @@ public class ConstantStepSizeStrategyTests
     public void GetStepSize_Should_Return_Constant_Step_Size()
     {
         var strategy = new ConstantStepSizeStrategy { StepSize = 0.1 };
+        
+        var f = new ArbitraryMathFunction
+        {
+            Function = x => x[0] + x[1],
+            Dimension = 2,
+        };
 
-        var stepSize = strategy.Handle(1, new Vector());
+        var stepSize = strategy.Handle(f, new []{ 0.0, 1.0 }, new Vector());
 
         Assert.Equal(0.1, stepSize);
-    }
-
-    [Fact]
-    public void GetStepSize_Should_Be_Independent_Of_Iteration()
-    {
-        var strategy = new ConstantStepSizeStrategy { StepSize = 0.2 };
-
-        for (var i = 0; i < 10; i++)
-        {
-            var stepSize = strategy.Handle(i, new Vector());
-
-            Assert.Equal(0.2, stepSize);
-        }
     }
 
     [Fact]
@@ -33,6 +27,12 @@ public class ConstantStepSizeStrategyTests
     {
         var strategy = new ConstantStepSizeStrategy { StepSize = 0.3 };
 
+        var f = new ArbitraryMathFunction
+        {
+            Function = x => x[0] + x[1],
+            Dimension = 2,
+        };
+        
         var vectors = new []
         {
             new Vector{ Values = new [] { 1.0, 2.0 }},
@@ -42,7 +42,7 @@ public class ConstantStepSizeStrategyTests
 
         foreach (var vector in vectors)
         {
-            var stepSize = strategy.Handle(1, vector);
+            var stepSize = strategy.Handle(f, new [] { 1.0, 2.0 }, vector);
 
             Assert.Equal(0.3, stepSize);
         }

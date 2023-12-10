@@ -28,7 +28,7 @@ public class Vector
 
     public Vector(params double[] values) => Values = values;
 
-    public static Vector Random(int dimension, double min = -1000, double max = 1000)
+    public static Vector Random(int dimension, double min = -100, double max = 100)
     {
         var random = new Random();
         var values = new double[dimension];

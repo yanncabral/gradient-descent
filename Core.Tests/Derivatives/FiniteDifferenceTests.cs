@@ -1,5 +1,5 @@
-using Core.Entities;
 using Core.Derivatives;
+using Core.Functions;
 
 namespace Core.Tests.Derivatives;
 
@@ -88,8 +88,7 @@ public class FiniteDifferenceTests
         var partialDerivativeXWithCustomStep = diff.Partial(
             function: function, 
             vector: vector, 
-            variableIndex: 0, 
-            stepSize: stepSize
+            variableIndex: 0
         );
 
         Assert.InRange(partialDerivativeXWithCustomStep, 1 - stepSize, 1 + stepSize);

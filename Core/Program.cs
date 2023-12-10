@@ -4,72 +4,87 @@ using Core.Functions;
 using Core.StepSizes;
 
 namespace Core;
-
 public static class Program
 {
     public static void Main()
     {
+        var p2 = Vector.Random(2);
+        var p3 = Vector.Random(3);
+    
         var gradients = new []
         {
             new GradientDescent
             {
                 Function = new Rosenbrock2DFunction(),
-                InitialCoordinates = Vector.Random(2),
+                StepSizeStrategy = new ConstantStepSizeStrategy() { StepSize = 0.01 },
+                InitialCoordinates = p2,
+            },
+            new GradientDescent
+            {
+                Function = new Rosenbrock2DFunction(),
+                StepSizeStrategy = new IpsStepSizeStrategy(),
+                InitialCoordinates = p2,
+            },
+            new GradientDescent
+            {
+                Function = new Rosenbrock2DFunction(),
+                InitialCoordinates = p2,
+                StepSizeStrategy = new IpsStepSizeStrategy()
+                {
+                    ReplacementType = IpsReplacementType.Worst,
+                    Delta = 0.05,
+                },
+            },
+            
+            new GradientDescent
+            {
+                Function = new Rosenbrock3DFunction(),
+                InitialCoordinates = p3,
+                StepSizeStrategy = new ConstantStepSizeStrategy() { StepSize = 0.01 },
+            },
+            new GradientDescent
+            {
+                Function = new Rosenbrock3DFunction(),
+                InitialCoordinates = p3,
                 StepSizeStrategy = new IpsStepSizeStrategy(),
             },
             new GradientDescent
             {
                 Function = new Rosenbrock3DFunction(),
-                InitialCoordinates = Vector.Random(3),
+                InitialCoordinates = p3,
+                StepSizeStrategy = new IpsStepSizeStrategy()
+                {
+                    ReplacementType = IpsReplacementType.Worst,
+                    Delta = 0.05,
+                },
+            },
+            
+            new GradientDescent
+            {
+                Function = new CommomFunction(),
+                InitialCoordinates = p2,
+                StepSizeStrategy = new ConstantStepSizeStrategy() { StepSize = 0.01 },
+            },
+            new GradientDescent
+            {
+                Function = new CommomFunction(),
+                InitialCoordinates = p2,
                 StepSizeStrategy = new IpsStepSizeStrategy(),
             },
             new GradientDescent
             {
-                Function = new Rosenbrock2DFunction(),
-                InitialCoordinates = Vector.Random(2),
+                Function = new CommomFunction(),
+                InitialCoordinates = p2,
                 StepSizeStrategy = new IpsStepSizeStrategy()
                 {
-                    ReplacementType = IpsReplacementType.Worst
+                    ReplacementType = IpsReplacementType.Worst,
+                    Delta = 0.05,
                 },
             },
-            new GradientDescent
-            {
-                Function = new Rosenbrock3DFunction(),
-                InitialCoordinates = Vector.Random(3),
-                StepSizeStrategy = new IpsStepSizeStrategy()
-                {
-                    ReplacementType = IpsReplacementType.Worst
-                },
-            },
-            new GradientDescent
-            {
-                Function = new Rosenbrock2DFunction(),
-                InitialCoordinates = Vector.Random(2, min: -10, max: 10),
-                StepSizeStrategy = new ConstantStepSizeStrategy()
-                {
-                    StepSize = 0.1
-                },
-            },
+            
         };
 
-        foreach (var gradient in gradients)
-        {
-            RunOptimizer(gradient);
-
-        }
-        
-        // RunAndLogOptimizer(new GradientDescent
-        // {
-        //     Function = new Rosenbrock3DFunction(),
-        //     InitialCoordinates = Vector.Random(3, min: -10000, max: 10000),
-        //     Derivative = new FiniteDifference(),
-        //     // StepSizeStrategy = new ConstantStepSizeStrategy() { StepSize = 0.01 },
-        //     StepSizeStrategy = new IpsStepSizeStrategy
-        //     {
-        //         ReplacementType = IpsReplacementType.Ciclical,
-        //     },
-        //     MaxIterations = 1000000,
-        // });
+        GenerateReport(gradients);
     }
     
     private static void RunAndLogOptimizer(GradientDescent optimizer)
@@ -78,17 +93,21 @@ public static class Program
 
         foreach (var (i, point) in points)
         {
-            Console.WriteLine($"Point {i}: {point}");
+            Console.WriteLine($"Step {i}: {point}");
         }
     }
     
-    private static void RunOptimizer(GradientDescent optimizer)
+    private static void GenerateReport(IEnumerable<GradientDescent> optimizers)
     {
-        var watch = Stopwatch.StartNew();
-        var minimal = optimizer.FindLocalMinimal();
-        watch.Stop();
-        var elapsed = (int) watch.Elapsed.TotalMilliseconds;
+        Console.WriteLine("Function\tStrategy\tIterations\tInitialCoordinates\tMinimalPoint\tMinimalValue\tElapsedTime");
+        foreach (var optimizer in optimizers)
+        {
+            var watch = Stopwatch.StartNew();
+            var minimal = optimizer.FindLocalMinimal();
+            watch.Stop();
+            var elapsed = (int) watch.Elapsed.TotalMilliseconds;
 
-        Console.WriteLine($"{optimizer.Function}({optimizer.StepSizeStrategy}): {minimal} in {elapsed}ms.");
+            Console.WriteLine($"{minimal.Function}\t{minimal.Strategy}\t{minimal.Iterations}\t{minimal.InitialCoordinates}\t{minimal.Point}\t{minimal.Value}\t{elapsed}ms");
+        }
     }
 }

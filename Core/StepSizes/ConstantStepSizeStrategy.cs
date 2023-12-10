@@ -10,4 +10,9 @@ public class ConstantStepSizeStrategy : IStepSizeStrategy
     {
         return StepSize;
     }
+    
+    public override string ToString()
+    {
+        return $"{base.ToString()?.Split('.').Last()}";
+    }
 }

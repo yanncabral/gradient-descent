@@ -1,4 +1,5 @@
 using Core.Entities;
+using Core.Functions;
 
 namespace Core.Tests;
 
@@ -41,11 +42,8 @@ public class ArbitraryMathFunctionTests
             Function = x => x[0] + x[1],
             Dimension = 2,
         };
-
-
-        var point = new Vector(new[] { 1.0, 2.0 });
-
-        var result = function.Evaluate(point);
+        
+        var result = function.Evaluate(new [] { 1.0, 2.0 });
 
         Assert.Equal(3.0, result);
     }

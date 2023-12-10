@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.StepSizes;
 
 namespace Core;
 public abstract class Optimizer
@@ -7,5 +8,16 @@ public abstract class Optimizer
     
     public abstract IEnumerable<(int, Vector)> WalkthroughForMinimal();
 
-    public abstract Vector FindLocalMinimal();
+    public abstract OptimizationResult FindLocalMinimal();
+}
+
+public class OptimizationResult
+{
+    public required Vector Point { get; init; }
+    public required int Iterations { get; init; }
+    public required MathFunction Function { get; init; }
+    public required IStepSizeStrategy Strategy { get; init; }
+    public required Vector InitialCoordinates { get; init; }
+
+    public double Value => Function.Evaluate(Point);
 }

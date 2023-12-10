@@ -9,12 +9,12 @@ public class GradientDescent : Optimizer
     public IDerivative Derivative { get; init; } = new FiniteDifference();
     public int MaxIterations { get; init; } = 1000000;
     public Vector? InitialCoordinates { get; init; }
-    public double Epsilon { get; init; } = double.Epsilon;
+    public double Epsilon { get; init; } = 1e-7;
     public required IStepSizeStrategy StepSizeStrategy { get; init; }
 
     public override IEnumerable<(int, Vector)> WalkthroughForMinimal()
     {
-        var currentPoint = InitialCoordinates;
+        var currentPoint = InitialCoordinates ?? Vector.Random(Function.Dimension);
 
         for (var i = 0; i < MaxIterations; i++)
         {
@@ -36,9 +36,21 @@ public class GradientDescent : Optimizer
         }
     }
 
-    public override Vector FindLocalMinimal()
+    public override OptimizationResult FindLocalMinimal()
     {
-        return WalkthroughForMinimal().Last().Item2;
+        var walkthrough = WalkthroughForMinimal().ToList();
+        
+        var firstStep = walkthrough.First();
+        var lastStep = walkthrough.Last();
+
+        return new OptimizationResult()
+        {
+            Point = lastStep.Item2,
+            Function = Function,
+            Iterations = lastStep.Item1,
+            InitialCoordinates = firstStep.Item2,
+            Strategy = StepSizeStrategy,
+        };
     }
 
     private Vector CalculateGradient(Vector vector)
@@ -51,5 +63,10 @@ public class GradientDescent : Optimizer
         }
 
         return new Vector(derivatives).Normalized();
+    }
+    
+    public override string ToString()
+    {
+        return $"{Function}({StepSizeStrategy})";
     }
 }

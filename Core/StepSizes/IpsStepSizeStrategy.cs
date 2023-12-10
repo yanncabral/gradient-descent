@@ -4,13 +4,7 @@ namespace Core.StepSizes;
 
 public enum IpsReplacementType
 {
-    /// <summary>
-    /// Substitui o ponto mais antigo pelo recém calculado.
-    /// </summary>
     Ciclical,
-    /// <summary>
-    /// Substitui a pior estimativa pelo recém calculado.
-    /// </summary>
     Worst,
 }
 
@@ -19,7 +13,7 @@ public class IpsStepSizeStrategy : IStepSizeStrategy
     public double Epsilon { get; init; } = 1e-7;
     public int MaxIterations { get; init; } = 100;
     public double Alpha { get; init; } = 0.1;
-    public double Delta { get; init; } = 0.005;
+    public double Delta { get; init; } = 0.05;
     public IpsReplacementType ReplacementType { get; init; } = IpsReplacementType.Ciclical;
 
     public double Handle(MathFunction f, Vector point, Vector gradient)
@@ -50,20 +44,29 @@ public class IpsStepSizeStrategy : IStepSizeStrategy
                 estimate = ((estimates[0] + estimates[1]) / 2 - (numerator / denominator));
             }
 
-            if (Math.Abs(estimates[0] - estimate) < Epsilon)
+            if (Math.Abs(estimates.Min() - estimate) < Epsilon)
             {
                 break;
             }
-            
-            
 
-            UpdateEstimates(ref estimates, estimate);
+            UpdateEstimates(
+                ref estimates, 
+                estimate,
+                f,
+                point,
+                gradient
+            );
         }
 
         return estimates.Min();
     }
     
-    private void UpdateEstimates(ref List<double> estimates, double estimate)
+    private void UpdateEstimates(
+        ref List<double> estimates, 
+        double estimate, 
+        MathFunction f, 
+        Vector point, 
+        Vector gradient)
     {
         estimates.Add(estimate);
         
@@ -76,12 +79,13 @@ public class IpsStepSizeStrategy : IStepSizeStrategy
             case IpsReplacementType.Worst:
             {
                 var worstIndex = 0;
+                var worstValue = F(estimates[0], f, point, gradient);
                 for (var j = 1; j < estimates.Count; j++)
                 {
-                    if (estimates[j] > estimates[worstIndex])
-                    {
-                        worstIndex = j;
-                    }
+                    var currentValue = F(estimates[j], f, point, gradient);
+                    if (currentValue <= worstValue) continue;
+                    worstIndex = j;
+                    worstValue = currentValue;
                 }
                 estimates.RemoveAt(worstIndex);
                 break;
@@ -96,6 +100,6 @@ public class IpsStepSizeStrategy : IStepSizeStrategy
 
     public override string ToString()
     {
-        return $"{base.ToString()}({ReplacementType})";
+        return $"{base.ToString()?.Split('.').Last()}({ReplacementType})";
     }
 }
