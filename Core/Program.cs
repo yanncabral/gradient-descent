@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Core.Derivatives;
 using Core.Entities;
 using Core.Functions;
@@ -37,7 +38,7 @@ public static class Program
         }
     }
     
-    private static void RunAndLogOptimizer(Optimizer optimizer)
+    private static void RunAndLogOptimizer(GradientDescent optimizer)
     {
         var points = optimizer.WalkthroughForMinimal();
 
@@ -47,10 +48,13 @@ public static class Program
         }
     }
     
-    private static void RunOptimizer(Optimizer optimizer)
+    private static void RunOptimizer(GradientDescent optimizer)
     {
+        var watch = Stopwatch.StartNew();
         var minimal = optimizer.FindLocalMinimal();
+        watch.Stop();
+        var elapsed = watch.Elapsed.Milliseconds;
 
-        Console.WriteLine($"{optimizer.Function} minimal: {minimal}");
+        Console.WriteLine($"{optimizer.Function}({optimizer.StepSizeStrategy}): {minimal} in {elapsed}ms.");
     }
 }
