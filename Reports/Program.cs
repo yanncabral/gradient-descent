@@ -1,10 +1,12 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Core;
 using Core.Entities;
 using Core.Functions;
 using Core.StepSizes;
 
-namespace Core;
-public static class Program
+namespace Reports;
+
+public static class Reports
 {
     public static void Main()
     {
@@ -86,8 +88,8 @@ public static class Program
 
         GenerateReport(gradients);
     }
-    
-    private static void RunAndLogOptimizer(GradientDescent optimizer)
+
+    public static void RunAndLogOptimizer(GradientDescent optimizer)
     {
         var points = optimizer.WalkthroughForMinimal();
 
