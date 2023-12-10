@@ -14,7 +14,7 @@ public static class Program
             new GradientDescent
             {
                 Function = new Rosenbrock2DFunction(),
-                InitialCoordinates = new Vector(1, 2),
+                InitialCoordinates = new Vector(1, 1),
                 Derivative = new FiniteDifference(),
                 StepSizeStrategy = new IpsWorstStepSizeStrategy(),
                 Iterations = 10000,
@@ -22,7 +22,7 @@ public static class Program
             new GradientDescent
             {
                 Function = new Rosenbrock3DFunction(),
-                InitialCoordinates = new Vector(10, 20, -30),
+                InitialCoordinates = new Vector(1, 1, 1),
                 Derivative = new FiniteDifference(),
                 StepSizeStrategy = new IpsWorstStepSizeStrategy(),
                 Iterations = 10000,
